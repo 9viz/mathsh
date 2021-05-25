@@ -20,7 +20,7 @@ __nqnmarks(){
 # Return 10eN.
 __tenpower(){
 	case $1 in
-	0) echo 0 ;;
+	0) echo 1 ;;
 	1) echo 10 ;;
 	2) echo 100 ;;
 	3) echo 1000 ;;
@@ -38,28 +38,19 @@ __tenpower(){
 	esac
 }
 
-# Add enough zeros so that ${#1} = $2.
-__padzero(){
-	l=$1
-	n=${#1}
-	while [ $n -lt $2 ]; do
-		l="${l}0"
-		: $((n+=1))
-	done
-	echo $l
-	unset l n
-}
-
 # Add $1 and $2.
 add(){
 	float1="${1#*.}"
 	dec1="${1%%."${float1}"}"
 	float2="${2#*.}"
 	dec2="${2%%."${float2}"}"
+	nfloat1=${#float1}
+	nfloat2=${#float2}
 
-	: $((maxf = ${#float1} >= ${#float2} ? ${#float1} : ${#float2}))
+	: $((maxf = nfloat1 >= nfloat2 ? nfloat1 : nfloat2))
 
-	: $((newf = $(__padzero $float1 $maxf) + $(__padzero $float2 $maxf)))
+	: $((newf = (float1 * $(__tenpower $((maxf - nfloat1))))
+		 + (float2 * $(__tenpower $((maxf - nfloat))))))
 
 	: $((tenmaxf = $(__tenpower $maxf)))
 
