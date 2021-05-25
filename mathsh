@@ -1,3 +1,44 @@
 #!/bin/sh
-# Because I don't hate myself enough
-# Licensed under BSD 2 Clause License.
+# Because I don't hate myself enough.  Licensed under BSD 2 Clause
+# License.
+
+#  Numbers are represented as xxxx.yyyyyy
+# If you have more than one dot in the string, you're fucked.
+
+# Return N question marks.
+__nqnmarks(){
+	x=
+	n=0
+	while [ $n -lt $1 ]; do
+		x="$x?"
+		: $((n+=1))
+	done
+	echo "$x"
+	unset x n
+}
+
+# Return 10eN.
+__tenpower(){
+	case $1 in
+	0) echo 0 ;;
+	1) echo 10 ;;
+	2) echo 100 ;;
+	3) echo 1000 ;;
+	4) echo 10000 ;;
+	5) echo 100000 ;;
+	*)
+		x=100000
+		n=5
+		while [ $n -lt $1 ]; do
+			x="${x}0"
+			: $((n+=1))
+		done
+		echo "$x"
+		unset x n
+	esac
+}
+
+# Add $1 and $2.
+add(){
+	:
+}

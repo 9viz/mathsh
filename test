@@ -1,3 +1,12 @@
 #!/bin/sh -x
 
 . ./mathsh
+
+x=10
+y=20
+echo $(($x$y * 10))
+
+echo $((x ^ 2))
+
+echo $(__tenpower 4)
+echo $(__tenpower 8)
