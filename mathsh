@@ -38,7 +38,7 @@ __tenpower(){
 	esac
 }
 
-# Add $1 and $2.
+# Add $1 and $2.  Negative numbers are not valid.
 add(){
 	float1="${1#*.}"
 	dec1="${1%%."${float1}"}"
@@ -49,14 +49,35 @@ add(){
 
 	: $((maxf = nfloat1 >= nfloat2 ? nfloat1 : nfloat2))
 
-	: $((newf = (float1 * $(__tenpower $((maxf - nfloat1))))
-		 + (float2 * $(__tenpower $((maxf - nfloat))))))
+	: $((new = ${dec1}${float1} * $(__tenpower $((maxf - nfloat1)))
+		 + ${dec2}${float2} * $(__tenpower $((maxf - nfloat2)))))
 
-	: $((tenmaxf = $(__tenpower $maxf)))
+	newf=${new#$(__nqnmarks $((${#new} - maxf)))}
 
-	: $((extradec = newf / tenmaxf))
+	echo ${new%%$newf}.$newf
 
-	echo $((dec1 + dec2 + extradec)).$((newf - (extradec * tenmaxf)))
+	unset dec1 float1 dec2 float2 nfloat1 nfloat2 maxf new newf
+}
 
-	unset dec1 float1 dec2 float2 maxf newf tenmaxf extradec
+# Subtract $2 from $1.  Negative numbers are not valid.
+sub(){
+	float1="${1#*.}"
+	dec1="${1%%."${float1}"}"
+	float2="${2#*.}"
+	dec2="${2%%."${float2}"}"
+	nfloat1=${#float1}
+	nfloat2=${#float2}
+
+	: $((maxf = nfloat1 >= nfloat2 ? nfloat1 : nfloat2))
+
+	: $((new = ${dec1}${float1} * $(__tenpower $((maxf - nfloat1)))
+		 - ${dec2}${float2} * $(__tenpower $((maxf - nfloat2)))))
+
+	: $((anew = new < 0 ? -new : new))
+
+	newf=${anew#$(__nqnmarks $((${#anew} - maxf)))}
+
+	echo ${new%%$newf}.$newf
+
+	unset float1 dec1 float2 dec2 nfloat1 nfloat2 maxf new anew newf
 }
