@@ -38,7 +38,34 @@ __tenpower(){
 	esac
 }
 
+# Add enough zeros so that ${#1} = $2.
+__padzero(){
+	l=$1
+	n=${#1}
+	while [ $n -lt $2 ]; do
+		l="${l}0"
+		: $((n+=1))
+	done
+	echo $l
+	unset l n
+}
+
 # Add $1 and $2.
 add(){
-	:
+	float1="${1#*.}"
+	dec1="${1%%."${float1}"}"
+	float2="${2#*.}"
+	dec2="${2%%."${float2}"}"
+
+	: $((maxf = ${#float1} >= ${#float2} ? ${#float1} : ${#float2}))
+
+	: $((newf = $(__padzero $float1 $maxf) + $(__padzero $float2 $maxf)))
+
+	: $((tenmaxf = $(__tenpower $maxf)))
+
+	: $((extradec = newf / tenmaxf))
+
+	echo $((dec1 + dec2 + extradec)).$((newf - (extradec * tenmaxf)))
+
+	unset dec1 float1 dec2 float2 maxf newf tenmaxf extradec
 }

@@ -2,11 +2,24 @@
 
 . ./mathsh
 
+assert(){
+	[ "$1" = "$2" ] && echo "yes" || echo "no"
+}
+
 x=10
 y=20
 echo $(($x$y * 10))
 
 echo $((x ^ 2))
 
-echo $(__tenpower 4)
-echo $(__tenpower 8)
+assert $(__tenpower 4) 10000
+assert $(__tenpower 8) 100000000
+
+assert $((1 > 2 ? 1 : 2)) 2
+: $((x=4 / 2)); echo $x
+
+assert $(add 1.2 2.9) 4.1
+
+assert $(add 2.123 4.523) 6.646
+
+assert $(add 139.1231239485 12.234)	151.3571239485
