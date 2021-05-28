@@ -42,14 +42,12 @@ __tenpower(){
 	14) echo 100000000000000 ;;
 	15) echo 1000000000000000 ;;
 	*)
-		x=1000000000000000
-		echo "$x$(__mkstr $(($1 - 15)) 0)"
-		unset x
+		echo "1000000000000000$(__mkstr $(($1 - 15)) 0)"
 	esac
 }
 
 
-# Subtract $2 from $1.  Negative numbers are not valid.
+# Subtract $2 from $1.
 sub(){
 	float1="${1#*.}"
 	dec1="${1%%.$float1}"
@@ -60,22 +58,31 @@ sub(){
 
 	: $((maxf = nfloat1 >= nfloat2 ? nfloat1 : nfloat2))
 
-	: $((new = $dec1$float1 * $(__tenpower $((maxf - nfloat1)))
-		 - $dec2$float2 * $(__tenpower $((maxf - nfloat2)))))
+	n1="$dec1$float1"
+	n2="$dec2$float2"
+
+	: $((n1 = (n1 < 0 ? -1 : 1) * ${n1#${n1%%[!0-]*}} * $(__tenpower $((maxf - nfloat1)))))
+	: $((n2 = (n2 < 0 ? -1 : 1) * ${n2#${n2%%[!0-]*}} * $(__tenpower $((maxf - nfloat2)))))
+
+	: $((new = n1 - n2))
 
 	anew=${new#-}
 
 	newf=${anew#$(__nqnmarks $((${#anew} - maxf)))}
 
 	ndec=${new%%$newf}
+
+	[ ${ndec:=0} = - ] && ndec=-0
 	echo ${ndec:-0}.$newf
 
-	unset float1 dec1 float2 dec2 nfloat1 nfloat2 maxf new anew newf ndec
+	unset float1 dec1 float2 dec2 nfloat1 nfloat2 maxf n1 n2 new anew newf ndec
 }
 
 # Add $1 and $2.
 add(){
-	sub $1 -$2
+	n=${2#-}; [ $n = $2 ] && n=-$2
+	sub $1 $n
+	unset n
 }
 
 # Multiply $1 and $2
@@ -89,8 +96,13 @@ mult(){
 
 	: $((maxf = nfloat1 >= nfloat2 ? nfloat1 : nfloat2))
 
-	: $((new = $dec1$float1 * $(__tenpower $((maxf - nfloat1)))
-		 * $dec2$float2 * $(__tenpower $((maxf - nfloat2)))))
+	n1="$dec1$float1"
+	n2="$dec2$float2"
+
+	: $((n1 = n1 < 0 ? -1 : 1 * ${n1#${n1%%[!0-]*}} * $(__tenpower $((maxf - nfloat1)))))
+	: $((n2 = n2 < 0 ? -1 : 1 * ${n2#${n2%%[!0-]*}} * $(__tenpower $((maxf - nfloat2)))))
+
+	: $((new = n1 * n2))
 
 	anew=${new#-}
 
@@ -103,7 +115,8 @@ mult(){
 	[ $nnewf -lt $((nfloat1 + nfloat2)) ] &&
 		newf="$(__mkstr $((nfloat1 + nfloat2 - nnewf)) 0)$newf"
 
-	echo ${ndec:-0}.$newf
+	[ ${ndec:=0} = - ] && ndec=-0
+	echo ${ndec}.$newf
 
-	unset float1 dec1 float2 dec2 nfloat1 nfloat2 maxf new anew newf ndec
+	unset float1 dec1 float2 dec2 nfloat1 nfloat2 maxf n1 n2 new anew newf ndec nnewf
 }
