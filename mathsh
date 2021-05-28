@@ -5,16 +5,21 @@
 #  Numbers are represented as xxxx.yyyyyy
 # If you have more than one dot in the string, you're fucked.
 
-# Return N question marks.
-__nqnmarks(){
-	x=
+# Make string of N K characters.
+__mkstr(){
 	n=0
+	str=
 	while [ $n -lt $1 ]; do
-		x="$x?"
+		str="$str$2"
 		: $((n+=1))
 	done
-	echo "$x"
-	unset x n
+	echo "$str"
+	unset n str
+}
+
+# Return N question marks.
+__nqnmarks(){
+	__mkstr $1 '?'
 }
 
 # Return 10eN.
@@ -26,58 +31,79 @@ __tenpower(){
 	3) echo 1000 ;;
 	4) echo 10000 ;;
 	5) echo 100000 ;;
+	6) echo 1000000 ;;
+	7) echo 10000000 ;;
+	8) echo 100000000 ;;
+	9) echo 1000000000 ;;
+	10) echo 10000000000 ;;
+	11) echo 100000000000 ;;
+	12) echo 1000000000000 ;;
+	13) echo 10000000000000 ;;
+	14) echo 100000000000000 ;;
+	15) echo 1000000000000000 ;;
 	*)
-		x=100000
-		n=5
-		while [ $n -lt $1 ]; do
-			x="${x}0"
-			: $((n+=1))
-		done
-		echo "$x"
-		unset x n
+		x=1000000000000000
+		echo "$x$(__mkstr $(($1 - 15)) 0)"
+		unset x
 	esac
 }
 
-# Add $1 and $2.  Negative numbers are not valid.
-add(){
-	float1="${1#*.}"
-	dec1="${1%%."${float1}"}"
-	float2="${2#*.}"
-	dec2="${2%%."${float2}"}"
-	nfloat1=${#float1}
-	nfloat2=${#float2}
-
-	: $((maxf = nfloat1 >= nfloat2 ? nfloat1 : nfloat2))
-
-	: $((new = ${dec1}${float1} * $(__tenpower $((maxf - nfloat1)))
-		 + ${dec2}${float2} * $(__tenpower $((maxf - nfloat2)))))
-
-	newf=${new#$(__nqnmarks $((${#new} - maxf)))}
-
-	echo ${new%%$newf}.$newf
-
-	unset dec1 float1 dec2 float2 nfloat1 nfloat2 maxf new newf
-}
 
 # Subtract $2 from $1.  Negative numbers are not valid.
 sub(){
 	float1="${1#*.}"
-	dec1="${1%%."${float1}"}"
+	dec1="${1%%.$float1}"
 	float2="${2#*.}"
-	dec2="${2%%."${float2}"}"
+	dec2="${2%%.$float2}"
 	nfloat1=${#float1}
 	nfloat2=${#float2}
 
 	: $((maxf = nfloat1 >= nfloat2 ? nfloat1 : nfloat2))
 
-	: $((new = ${dec1}${float1} * $(__tenpower $((maxf - nfloat1)))
-		 - ${dec2}${float2} * $(__tenpower $((maxf - nfloat2)))))
+	: $((new = $dec1$float1 * $(__tenpower $((maxf - nfloat1)))
+		 - $dec2$float2 * $(__tenpower $((maxf - nfloat2)))))
 
-	: $((anew = new < 0 ? -new : new))
+	anew=${new#-}
 
 	newf=${anew#$(__nqnmarks $((${#anew} - maxf)))}
 
-	echo ${new%%$newf}.$newf
+	ndec=${new%%$newf}
+	echo ${ndec:-0}.$newf
 
-	unset float1 dec1 float2 dec2 nfloat1 nfloat2 maxf new anew newf
+	unset float1 dec1 float2 dec2 nfloat1 nfloat2 maxf new anew newf ndec
+}
+
+# Add $1 and $2.
+add(){
+	sub $1 -$2
+}
+
+# Multiply $1 and $2
+mult(){
+	float1="${1#*.}"
+	dec1="${1%%.$float1}"
+	float2="${2#*.}"
+	dec2="${2%%.$float2}"
+	nfloat1=${#float1}
+	nfloat2=${#float2}
+
+	: $((maxf = nfloat1 >= nfloat2 ? nfloat1 : nfloat2))
+
+	: $((new = $dec1$float1 * $(__tenpower $((maxf - nfloat1)))
+		 * $dec2$float2 * $(__tenpower $((maxf - nfloat2)))))
+
+	anew=${new#-}
+
+	newf=${anew#$(__nqnmarks $((${#anew} - maxf)))}
+
+	ndec=${new%%$newf}
+
+	nnewf=${#newf}
+
+	[ $nnewf -lt $((nfloat1 + nfloat2)) ] &&
+		newf="$(__mkstr $((nfloat1 + nfloat2 - nnewf)) 0)$newf"
+
+	echo ${ndec:-0}.$newf
+
+	unset float1 dec1 float2 dec2 nfloat1 nfloat2 maxf new anew newf ndec
 }
