@@ -2,8 +2,9 @@
 # Because I don't hate myself enough.  Licensed under BSD 2 Clause
 # License.
 
-#  Numbers are represented as xxxx.yyyyyy
-# If you have more than one dot in the string, you're fucked.
+# Numbers are represented as xxxx.yyyyyy.  If you have more than one
+# dot in the string, you're fucked.  If you don't have a dot in the
+# string, you're fucked.
 
 # Make string of N K characters.
 __mkstr(){
@@ -41,8 +42,7 @@ __tenpower(){
 	13) echo 10000000000000 ;;
 	14) echo 100000000000000 ;;
 	15) echo 1000000000000000 ;;
-	*)
-		echo "1000000000000000$(__mkstr $(($1 - 15)) 0)"
+	*) echo "1000000000000000$(__mkstr $(($1 - 15)) 0)" ;;
 	esac
 }
 
@@ -56,15 +56,15 @@ sub(){
 	nfloat1=${#float1}
 	nfloat2=${#float2}
 
-	: $((maxf = nfloat1 >= nfloat2 ? nfloat1 : nfloat2))
+	maxf=$((nfloat1 >= nfloat2 ? nfloat1 : nfloat2))
 
 	n1="$dec1$float1"
 	n2="$dec2$float2"
 
-	: $((n1 = (n1 < 0 ? -1 : 1) * ${n1#${n1%%[!0-]*}} * $(__tenpower $((maxf - nfloat1)))))
-	: $((n2 = (n2 < 0 ? -1 : 1) * ${n2#${n2%%[!0-]*}} * $(__tenpower $((maxf - nfloat2)))))
+	n1=$(((n1 < 0 ? -1 : 1) * ${n1#${n1%%[!0-]*}} * $(__tenpower $((maxf - nfloat1)))))
+	n2=$(((n2 < 0 ? -1 : 1) * ${n2#${n2%%[!0-]*}} * $(__tenpower $((maxf - nfloat2)))))
 
-	: $((new = n1 - n2))
+	new=$((n1 - n2))
 
 	anew=${new#-}
 
@@ -85,7 +85,7 @@ add(){
 	unset n
 }
 
-# Multiply $1 and $2
+# Multiply $1 and $2.
 mult(){
 	float1="${1#*.}"
 	dec1="${1%%.$float1}"
@@ -94,15 +94,15 @@ mult(){
 	nfloat1=${#float1}
 	nfloat2=${#float2}
 
-	: $((maxf = nfloat1 >= nfloat2 ? nfloat1 : nfloat2))
+	maxf=$((nfloat1 >= nfloat2 ? nfloat1 : nfloat2))
 
 	n1="$dec1$float1"
 	n2="$dec2$float2"
 
-	: $((n1 = n1 < 0 ? -1 : 1 * ${n1#${n1%%[!0-]*}} * $(__tenpower $((maxf - nfloat1)))))
-	: $((n2 = n2 < 0 ? -1 : 1 * ${n2#${n2%%[!0-]*}} * $(__tenpower $((maxf - nfloat2)))))
+	n1=$((n1 < 0 ? -1 : 1 * ${n1#${n1%%[!0-]*}} * $(__tenpower $((maxf - nfloat1)))))
+	n2=$((n2 < 0 ? -1 : 1 * ${n2#${n2%%[!0-]*}} * $(__tenpower $((maxf - nfloat2)))))
 
-	: $((new = n1 * n2))
+	new=$((n1 * n2))
 
 	anew=${new#-}
 
