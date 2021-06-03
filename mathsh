@@ -99,8 +99,8 @@ mult(){
 	n1="$dec1$float1"
 	n2="$dec2$float2"
 
-	n1=$((n1 < 0 ? -1 : 1 * ${n1#${n1%%[!0-]*}} * $(__tenpower $((maxf - nfloat1)))))
-	n2=$((n2 < 0 ? -1 : 1 * ${n2#${n2%%[!0-]*}} * $(__tenpower $((maxf - nfloat2)))))
+	n1=$(((n1 < 0 ? -1 : 1) * ${n1#${n1%%[!0-]*}} * $(__tenpower $((maxf - nfloat1)))))
+	n2=$(((n2 < 0 ? -1 : 1) * ${n2#${n2%%[!0-]*}} * $(__tenpower $((maxf - nfloat2)))))
 
 	new=$((n1 * n2))
 
